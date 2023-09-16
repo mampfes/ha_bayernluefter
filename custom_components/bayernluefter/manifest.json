@@ -5,6 +5,7 @@
   "documentation": "https://github.com/mampfes/ha_bayernluefter",
   "domain": "bayernluefter",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/mampfes/ha_bayernluefter/issues",
   "integration_type": "device",
   "name": "Bayernlüfter",
   "requirements": ["pyernluefter==0.0.3"],
