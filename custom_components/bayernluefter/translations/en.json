@@ -9,12 +9,10 @@
     "step": {
       "user": {
         "data": {
-          "host": "Host",
-          "name": "Name"
+          "host": "Host"
         },
         "data_description": {
-          "host": "IP address or host name.",
-          "name": "Device name."
+          "host": "IP address or host name."
         }
       }
     }
