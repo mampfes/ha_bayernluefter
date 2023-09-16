@@ -1,0 +1,12 @@
+{
+  "codeowners": ["@mampfes"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/mampfes/ha_bayernluefter",
+  "domain": "bayernluefter",
+  "iot_class": "local_polling",
+  "integration_type": "device",
+  "name": "Bayernlüfter",
+  "requirements": ["pyernluefter==0.0.3"],
+  "version": "1.0.0"
+}

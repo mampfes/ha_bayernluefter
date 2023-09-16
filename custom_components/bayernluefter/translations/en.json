@@ -1,0 +1,22 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Device is already configured"
+    },
+    "error": {
+      "cannot_connect": "Failed to connect. Check IP address or host name."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "host": "Host",
+          "name": "Name"
+        },
+        "data_description": {
+          "host": "IP address or host name.",
+          "name": "Device name."
+        }
+      }
+    }
+  }
+}
