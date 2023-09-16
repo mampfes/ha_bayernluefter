@@ -1,12 +1,12 @@
 {
   "domain": "bayernluefter",
-  "name": "Bayernlüfter",
+  "name": "Bayernl\u00fcfter",
   "codeowners": ["@mampfes"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/mampfes/ha_bayernluefter",
-  "iot_class": "local_polling",
   "integration_type": "device",
+  "iot_class": "local_polling",
   "issue_tracker": "https://github.com/mampfes/ha_bayernluefter/issues",
   "requirements": ["pyernluefter==0.0.3"],
   "version": "1.0.0"
