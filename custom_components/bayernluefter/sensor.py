@@ -9,7 +9,6 @@ from homeassistant.const import (
     EntityCategory,
     PERCENTAGE,
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
-    STATE_UNKNOWN,
     UnitOfTemperature,
 )
 from homeassistant.components.sensor import (
@@ -182,10 +181,7 @@ class BayernluefterSensorConverted(BayernluefterSensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the value reported by the sensor."""
-        try:
-            return self._device.raw_converted()[self.entity_description.key]
-        except KeyError:
-            return STATE_UNKNOWN
+        return self._device.raw_converted()[self.entity_description.key]
 
 
 class BayernluefterSensorRaw(BayernluefterSensorEntity):
@@ -202,7 +198,4 @@ class BayernluefterSensorRaw(BayernluefterSensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the value reported by the sensor."""
-        try:
-            return self._device.raw()[self.entity_description.key]
-        except KeyError:
-            return STATE_UNKNOWN
+        return self._device.raw()[self.entity_description.key]

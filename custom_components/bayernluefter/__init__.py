@@ -110,3 +110,9 @@ class BayernluefterEntity(CoordinatorEntity, Entity):
             model="Bayernlüfter",
             sw_version=f"{device.raw()['FW_MainController']} / {device.raw()['FW_WiFi']}",  # noqa: E501
         )
+
+    @property
+    def available(self) -> bool:
+        # Note: we only check raw() and not raw_converted() because both have the
+        # same set of keys
+        return super().available and self.entity_description.key in self._device.raw()

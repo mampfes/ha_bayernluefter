@@ -6,7 +6,6 @@ import logging
 
 from homeassistant.const import (
     EntityCategory,
-    STATE_UNKNOWN,
 )
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
@@ -75,7 +74,4 @@ class BayernluefterBinarySensor(BayernluefterEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return True if the binary sensor is on."""
-        try:
-            return self._device.raw_converted()[self.entity_description.key]
-        except KeyError:
-            return STATE_UNKNOWN
+        return self._device.raw_converted()[self.entity_description.key]
