@@ -1,12 +1,12 @@
-# MUSTER F R MASCHINENLESBAREN YAML-EXPORT
+# MUSTER FUER MASCHINENLESBAREN YAML-EXPORT
 
 # Der Aufruf erfolgt durch:
 # http://Ihre-IP-Adresse/index.html?export=1
 
-# Das Format kann selbst angepasst werden, so dass die Parameter von einem Smarthome-System ausgelesen werden k nnen.
+# Das Format kann selbst angepasst werden, so dass die Parameter von einem Smarthome-System ausgelesen werden koennen.
 # Sie finden die export.txt im Experten-Browser, nach dem Anklicken vom Zahnrad im Live-Schema
 
-# Ein weiteres Template ist als XML verf gbar
+# Ein weiteres Template ist als XML verfuegbar
 # Es kann hier heruntergeladen werden: www.bayernluft.de/de/download/export.txt
 
 Date: ~Date~
