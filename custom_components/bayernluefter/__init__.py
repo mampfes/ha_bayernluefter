@@ -106,7 +106,7 @@ class BayernluefterEntity(CoordinatorEntity, Entity):
             configuration_url=f"http://{device.raw()['LocalIP']}",
             identifiers={(DOMAIN, format_mac(device.raw()["MAC"]))},
             name=device.raw()["DeviceName"],
-            manufacturer="Bayernluft",
+            manufacturer="BAVARIAVENT UG (haftungsbeschränkt) & Co. KG",
             model="Bayernlüfter",
             sw_version=f"{device.raw()['FW_MainController']} / {device.raw()['FW_WiFi']}",  # noqa: E501
         )

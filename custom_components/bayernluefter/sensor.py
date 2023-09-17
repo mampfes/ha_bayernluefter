@@ -127,6 +127,11 @@ SENSOR_TYPES_RAW: tuple[SensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
+        key="LocalIP",
+        name="IP",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
         key="SystemMode",
         name="SystemMode",
         device_class=SensorDeviceClass.ENUM,
