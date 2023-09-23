@@ -17,6 +17,8 @@ from homeassistant.util.percentage import (
     percentage_to_ranged_value,
 )
 
+from pyernluefter.convert import SystemMode
+
 from . import (
     BayernluefterEntity,
     BayernluefterDataUpdateCoordinator as DataUpdateCoordinator,
@@ -34,6 +36,7 @@ class FanMode(StrEnum):
     Auto = "Auto"
     Timer = "Timer"
 
+SYSTEM_MODES_WITH_AUTO = {SystemMode.Kellermode, SystemMode.Behaglichkeitsmode}
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up fan entries."""
@@ -53,7 +56,7 @@ class BayernluefterFan(BayernluefterEntity, FanEntity):
     # These fan specific attributes are not (yet) part of FanEntityDescription
     _attr_speed_count = int_states_in_range(FAN_SPEED_RANGE)
     _attr_supported_features = FanEntityFeature.SET_SPEED | FanEntityFeature.PRESET_MODE
-    _attr_preset_modes = [e.value for e in FanMode]
+    #_attr_preset_modes = [e.value for e in FanMode]
 
     def __init__(
         self,
@@ -61,14 +64,12 @@ class BayernluefterFan(BayernluefterEntity, FanEntity):
     ) -> None:
         """Initialize a switch entity for a Bayernluefter device."""
         super().__init__(coordinator, self.entity_description)
+        self._attr_preset_modes = [FanMode.Timer]
+        if self._device.raw_converted()["SystemMode"] in SYSTEM_MODES_WITH_AUTO:
+            self._attr_preset_modes.append(FanMode.Auto)
 
     def _current_speed(self):
-        try:
-            return self._device.raw_converted()["Speed_Out"]
-        except KeyError:
-            # TODO currently returns 0 (=off) when not initialized,
-            # should (?) be UNKNOWN
-            return 0
+        return self._device.raw_converted()["Speed_Out"]
 
     @property
     def is_on(self) -> bool:
