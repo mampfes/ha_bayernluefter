@@ -4,18 +4,24 @@ Config flow for bayernluefter component.
 
 import logging
 import voluptuous as vol
-from homeassistant import config_entries
 from homeassistant.const import (
     CONF_HOST,
     CONF_MAC,
+    CONF_SCAN_INTERVAL,
 )
-from homeassistant.helpers import aiohttp_client
+from homeassistant.core import callback
+from homeassistant.config_entries import ConfigEntry, ConfigFlow
+from homeassistant.helpers import aiohttp_client, selector
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.device_registry import format_mac
+from homeassistant.helpers.schema_config_entry_flow import (
+    SchemaFlowFormStep,
+    SchemaOptionsFlowHandler,
+)
 
 from pyernluefter import Bayernluefter
 
-from .const import DOMAIN
+from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,14 +31,39 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
+SIMPLE_OPTIONS_SCHEMA = vol.Schema(
+    {
+        vol.Optional(
+            CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
+        ): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                mode=selector.NumberSelectorMode.BOX,
+                unit_of_measurement="seconds",
+                min=1,
+                max=600,
+            ),
+        ),
+    }
+)
 
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+OPTIONS_FLOW = {
+    "init": SchemaFlowFormStep(next_step="simple_options"),
+    "simple_options": SchemaFlowFormStep(SIMPLE_OPTIONS_SCHEMA),
+}
+
+
+class ConfigFlow(ConfigFlow, domain=DOMAIN):
     """Component config flow."""
 
     VERSION = 1
 
-    def __init__(self):
-        self._source = None
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> SchemaOptionsFlowHandler:
+        """Get options flow for this handler."""
+        return SchemaOptionsFlowHandler(config_entry, OPTIONS_FLOW)
 
     async def async_step_user(self, user_input=None):
         """Handle the start of the config flow.
@@ -59,10 +90,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = "cannot_connect"
         else:
             user_input[CONF_MAC] = format_mac(device.raw()["MAC"])
-            # user_input[CONF_MODEL] = avr.protocol.model
             await self.async_set_unique_id(user_input[CONF_MAC])
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(title=f"{device.raw_converted()['DeviceName']} @ {user_input[CONF_HOST]}", data=user_input)
+            return self.async_create_entry(
+                title=f"{device.raw_converted()['DeviceName']} @ {user_input[CONF_HOST]}",  # noqa: E501
+                data=user_input,
+            )
 
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
