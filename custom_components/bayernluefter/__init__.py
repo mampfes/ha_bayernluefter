@@ -3,15 +3,16 @@ Support for Bayernluefter.
 """
 
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL, Platform
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceInfo, format_mac
 from homeassistant.helpers.entity import Entity, EntityDescription
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -23,8 +24,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 SCAN_INTERVAL = timedelta(seconds=20)
+UPDATE_SCAN_INTERVAL = timedelta(days=1)  # check once per day for firmware updates
 
-PLATFORMS = ["sensor", "binary_sensor", "fan"]
+PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.FAN, Platform.UPDATE]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -32,6 +34,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     config_entry contains data from config entry database."""
     session = async_get_clientsession(hass)
     device = Bayernluefter(entry.data[CONF_HOST], session)
+
+    await device.poll_latest_versions()
 
     update_interval = timedelta(
         seconds=entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
@@ -46,6 +50,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(on_update_options_listener))
+
+    async def poll_latest_versions(now: datetime) -> None:
+        await device.poll_latest_versions()
+
+    entry.async_on_unload(
+        async_track_time_interval(hass, poll_latest_versions, UPDATE_SCAN_INTERVAL)
+    )
 
     return True
 
