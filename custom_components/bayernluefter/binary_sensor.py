@@ -41,7 +41,11 @@ SENSOR_TYPES_CONVERTED: tuple[BinarySensorEntityDescription, ...] = (
     ),
     BinarySensorEntityDescription(
         key="_MaxMode",
-        name="MaxMode",
+        name="TimerAktiv",
+    ),
+    BinarySensorEntityDescription(
+        key="_Frozen",
+        name="SpeedFrozen",
     ),
 )
 
