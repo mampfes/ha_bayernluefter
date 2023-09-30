@@ -79,7 +79,7 @@ async def on_update_options_listener(hass: HomeAssistant, entry: ConfigEntry):
 
 
 class BayernluefterDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Class to manage fetching AccuWeather data API."""
+    """Class to manage fetching data from Bayernluefter device."""
 
     _device: Bayernluefter
 
