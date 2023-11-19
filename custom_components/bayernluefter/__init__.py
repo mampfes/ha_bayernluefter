@@ -23,7 +23,6 @@ from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
 _LOGGER = logging.getLogger(__name__)
 
 
-SCAN_INTERVAL = timedelta(seconds=20)
 UPDATE_SCAN_INTERVAL = timedelta(days=1)  # check once per day for firmware updates
 
 PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.FAN, Platform.UPDATE]
@@ -64,8 +63,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-
-    hass.data[DOMAIN][entry.entry_id]
 
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
