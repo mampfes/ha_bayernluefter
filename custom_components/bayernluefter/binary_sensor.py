@@ -33,7 +33,7 @@ SENSOR_TYPES_CONVERTED: tuple[BinarySensorEntityDescription, ...] = (
     BinarySensorEntityDescription(
         key="_VermieterMode",
         name="VermieterMode",
-        entity_category=EntityCategory.CONFIG,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BinarySensorEntityDescription(
         key="_QuerlueftungAktiv",

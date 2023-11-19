@@ -136,7 +136,7 @@ SENSOR_TYPES_RAW: tuple[SensorEntityDescription, ...] = (
         name="SystemMode",
         device_class=SensorDeviceClass.ENUM,
         options=[e.value for e in SystemMode],
-        entity_category=EntityCategory.CONFIG,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
 )
 
