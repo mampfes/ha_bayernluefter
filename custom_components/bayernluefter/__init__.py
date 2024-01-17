@@ -5,6 +5,8 @@ Support for Bayernluefter.
 import logging
 from datetime import timedelta, datetime
 from typing import Any
+from aiohttp import ClientError
+from requests.exceptions import RequestException
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -93,7 +95,15 @@ class BayernluefterDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update data via library."""
-        await self._device.update()
+        try:
+            await self._device.update()
+            self._failure_counter = 0
+        except (ClientError, RequestException):
+            self._failure_counter += 1
+            if self._failure_counter == 3:
+                _LOGGER.error("3 consecutive errors")
+            if self._failure_counter >= 3:
+                raise
 
 
 class BayernluefterEntity(CoordinatorEntity, Entity):
