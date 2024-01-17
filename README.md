@@ -29,17 +29,18 @@ In case you would like to install manually:
 To get all available values from your Bayernlüfter device, you have to upload a template file with all available variables:
 
 1. Download the following [template](./doc/export.txt).
-2. Open the *Experten-Browser* of your device: `http://<ip-address/browser.html`
-3. Select the downloaded `export.txt` in the *Experten-Browser* and click on *Hochladen*.
+2. Open the _Experten-Browser_ of your device: `http://<ip-address/browser.html`
+3. Select the downloaded `export.txt` in the _Experten-Browser_ and click on _Hochladen_.
+4. Reload the integration in Home Assistant or restart Home Assistant.
 
 ## Device Name
 
 By factory default, the device name is equal to the MAC address of the device. To set your own device name:
 
-1. Open *WLAN Konfiguration* of your device: `http://<ip-address/ipconfig.html`
-2. In the box *Modulkonfiguration* change the field `DeviceName`.
-3. Click on *Speichern und neu starten*.
+1. Open _WLAN Konfiguration_ of your device: `http://<ip-address/ipconfig.html`
+2. In the box _Modulkonfiguration_ change the field `DeviceName`.
+3. Click on _Speichern und neu starten_.
 
-# Acknowledgements
+## Acknowledgements
 
 This component was inspired by <https://github.com/nielstron/ha_bayernluefter>.
