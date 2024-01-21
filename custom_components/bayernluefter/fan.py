@@ -17,7 +17,7 @@ from homeassistant.util.percentage import (
     percentage_to_ranged_value,
 )
 
-from pyernluefter.convert import SystemMode
+from .pyernluefter.convert import SystemMode
 
 from . import (
     BayernluefterEntity,

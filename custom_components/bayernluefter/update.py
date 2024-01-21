@@ -12,7 +12,6 @@ from homeassistant.components.update import (
     UpdateDeviceClass,
 )
 
-from pyernluefter import UpdateTarget
 
 from . import (
     BayernluefterEntity,
@@ -38,8 +37,6 @@ class BayernluefterUpdate(BayernluefterEntity, UpdateEntity):
         key="FW_WiFi", device_class=UpdateDeviceClass.FIRMWARE
     )
 
-    target = UpdateTarget.WLAN32
-
     # These update specific attributes are not (yet) part of UpdateEntityDescription
     _attr_supported_features = UpdateEntityFeature.INSTALL
 
@@ -49,25 +46,25 @@ class BayernluefterUpdate(BayernluefterEntity, UpdateEntity):
     ) -> None:
         """Initialize an update entity for a Bayernluefter device."""
         super().__init__(coordinator, self.entity_description)
-        self._attr_release_url = self._device.release_url(self.target)
+        self._attr_release_url = self._device.wifi_release_url()
 
     @property
     def available(self) -> bool:
         return (
             self._coordinator.last_update_success
-            and self._device.installed_version(self.target) is not None
+            and self._device.installed_wifi_version() is not None
         )
 
     @property
     def latest_version(self) -> str:
-        return self._device.latest_version(self.target)
+        return self._device.latest_wifi_version()
 
     @property
     def installed_version(self) -> str:
-        return self._device.installed_version(self.target)
+        return self._device.installed_wifi_version()
 
     async def async_install(
         self, version: str | None, backup: bool, **kwargs: Any
     ) -> None:
         """Install the latest firmware version."""
-        await self._device.update_check(self.target)
+        await self._device.update_check()
