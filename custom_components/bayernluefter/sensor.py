@@ -19,7 +19,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.helpers.typing import StateType
 
-from pyernluefter.convert import SystemMode
+from .pyernluefter.convert import SystemMode
 
 from . import (
     BayernluefterEntity,

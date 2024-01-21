@@ -18,7 +18,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from pyernluefter import Bayernluefter
+from .pyernluefter import Bayernluefter
 
 from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
 
