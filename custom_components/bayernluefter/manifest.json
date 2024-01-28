@@ -8,6 +8,6 @@
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/mampfes/ha_bayernluefter/issues",
-  "requirements": [],
-  "version": "1.2.2"
+  "requirements": ["aiohttp", "parse"],
+  "version": "1.2.3"
 }
