@@ -21,6 +21,12 @@ ENDPOINT_BUTTON_TIMER = "?button=timer"
 ENDPOINT_SPEED = "?speed={}"
 ENDPOINT_UPDATE_CHECK = "?updatecheck=1"
 
+# The following motor speed controls are only available if device is switched off!
+# and firmware version >= WS32240427
+ENDPOINT_SPEED_IN = "?speedIn={}"
+ENDPOINT_SPEED_OUT = "?speedOut={}"
+ENDPOINT_SPEED_ANTI_FREEZE = "?speedFrM={}"
+
 SERVER_URL = "https://www.bayernluft.de"
 
 
@@ -141,6 +147,18 @@ class Bayernluefter:
     async def set_speed(self, level: int):
         assert 1 <= level <= 10, "Level must be between 1 and 10"
         await self._request_bl(ENDPOINT_SPEED.format(level))
+
+    async def set_speed_in(self, level: int):
+        assert 0 <= level <= 10, "Level must be between 0 and 10"
+        await self._request_bl(ENDPOINT_SPEED_IN.format(level))
+
+    async def set_speed_out(self, level: int):
+        assert 0 <= level <= 10, "Level must be between 0 and 10"
+        await self._request_bl(ENDPOINT_SPEED_OUT.format(level))
+
+    async def set_speed_anti_freeze(self, level: int):
+        assert 0 <= level <= 50, "Level must be between 0 and 50"
+        await self._request_bl(ENDPOINT_SPEED_ANTI_FREEZE.format(level))
 
     async def update_check(self):
         await self._request_bl(ENDPOINT_UPDATE_CHECK)

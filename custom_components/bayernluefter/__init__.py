@@ -27,7 +27,13 @@ _LOGGER = logging.getLogger(__name__)
 
 UPDATE_SCAN_INTERVAL = timedelta(days=1)  # check once per day for firmware updates
 
-PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.FAN, Platform.UPDATE]
+PLATFORMS = [
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+    Platform.FAN,
+    Platform.UPDATE,
+    Platform.NUMBER,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
