@@ -57,7 +57,13 @@ class BayernluefterFan(BayernluefterEntity, FanEntity):
 
     # These fan specific attributes are not (yet) part of FanEntityDescription
     _attr_speed_count = int_states_in_range(FAN_SPEED_RANGE)
-    _attr_supported_features = FanEntityFeature.SET_SPEED | FanEntityFeature.PRESET_MODE
+    _attr_supported_features = (
+        FanEntityFeature.TURN_ON
+        | FanEntityFeature.TURN_OFF
+        | FanEntityFeature.SET_SPEED
+        | FanEntityFeature.PRESET_MODE
+    )
+    _enable_turn_on_off_backwards_compatibility = False
     # _attr_preset_modes = [e.value for e in FanMode]
 
     def __init__(
