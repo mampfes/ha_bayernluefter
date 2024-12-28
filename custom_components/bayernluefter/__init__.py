@@ -129,18 +129,16 @@ class BayernluefterEntity(CoordinatorEntity, Entity):
         device = coordinator._device
         self._coordinator = coordinator
         self._device = device
-        self._attr_unique_id = f"{format_mac(device.raw()['MAC'])}-{description.key}"
+        self._attr_unique_id = f"{format_mac(device.data['MAC'])}-{description.key}"
         self._attr_device_info = DeviceInfo(
-            configuration_url=f"http://{device.raw()['LocalIP']}",
-            identifiers={(DOMAIN, format_mac(device.raw()["MAC"]))},
-            name=device.raw()["DeviceName"],
+            configuration_url=f"http://{device.data.get('LocalIP')}",
+            identifiers={(DOMAIN, format_mac(device.data["MAC"]))},
+            name=device.data.get("DeviceName"),
             manufacturer="BAVARIAVENT UG (haftungsbeschränkt) & Co. KG",
             model="Bayernlüfter",
-            sw_version=f"{device.raw()['FW_MainController']} / {device.raw()['FW_WiFi']}",  # noqa: E501
+            sw_version=f"{device.data.get('FW_MainController')} / {device.data.get('FW_WiFi')}",  # noqa: E501
         )
 
     @property
     def available(self) -> bool:
-        # Note: we only check raw() and not raw_converted() because both have the
-        # same set of keys
-        return super().available and self.entity_description.key in self._device.raw()
+        return super().available and self.entity_description.key in self._device.data

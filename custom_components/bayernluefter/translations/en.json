@@ -1,4 +1,13 @@
 {
+  "options": {
+    "step": {
+      "simple_options": {
+        "data": {
+          "scan_interval": "Scan Interval"
+        }
+      }
+    }
+  },
   "config": {
     "abort": {
       "already_configured": "Device is already configured"

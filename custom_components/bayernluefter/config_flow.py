@@ -89,11 +89,11 @@ class ConfigFlow(ConfigFlow, domain=DOMAIN):
         except ValueError:
             errors["base"] = "cannot_connect"
         else:
-            user_input[CONF_MAC] = format_mac(device.raw()["MAC"])
+            user_input[CONF_MAC] = format_mac(device.data["MAC"])
             await self.async_set_unique_id(user_input[CONF_MAC])
             self._abort_if_unique_id_configured()
             return self.async_create_entry(
-                title=f"{device.raw_converted()['DeviceName']} @ {user_input[CONF_HOST]}",  # noqa: E501
+                title=f"{device.data['DeviceName']} @ {user_input[CONF_HOST]}",  # noqa: E501
                 data=user_input,
             )
 

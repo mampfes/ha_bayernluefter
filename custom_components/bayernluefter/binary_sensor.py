@@ -23,28 +23,28 @@ _LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES_CONVERTED: tuple[BinarySensorEntityDescription, ...] = (
     BinarySensorEntityDescription(
-        key="_FrostschutzAktiv",
+        key="FrostschutzAktiv",
         name="FrostschutzAktiv",
     ),
     BinarySensorEntityDescription(
-        key="_AbtauMode",
+        key="AbtauMode",
         name="AbtauMode",
     ),
     BinarySensorEntityDescription(
-        key="_VermieterMode",
+        key="VermieterMode",
         name="VermieterMode",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BinarySensorEntityDescription(
-        key="_QuerlueftungAktiv",
+        key="QuerlueftungAktiv",
         name="QuerlueftungAktiv",
     ),
     BinarySensorEntityDescription(
-        key="_MaxMode",
+        key="TimerActiv",
         name="TimerAktiv",
     ),
     BinarySensorEntityDescription(
-        key="_Frozen",
+        key="SpeedFrozen",
         name="SpeedFrozen",
     ),
 )
@@ -78,4 +78,4 @@ class BayernluefterBinarySensor(BayernluefterEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return True if the binary sensor is on."""
-        return self._device.raw_converted()[self.entity_description.key]
+        return self._device.data[self.entity_description.key]

@@ -84,7 +84,7 @@ class BayernluefterNumber(BayernluefterEntity, NumberEntity):
     @property
     def native_value(self) -> float | None:
         """Return the value reported by the sensor."""
-        return self._device.raw_converted()[self.entity_description.key]
+        return self._device.data[self.entity_description.key]
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the native value."""

@@ -2,18 +2,16 @@
 
 import logging
 import aiohttp
-import re
-import parse
+import json
 from http import HTTPStatus
 from enum import Enum
 from dataclasses import dataclass
 
 from typing import Dict
 
-from .convert import CONVERSION_DICT
+from .convert import convert
 
-ENDPOINT_EXPORT = "?export=1"
-ENDPOINT_TEMPLATE = "/export.txt"
+ENDPOINT_JSON = "/index.html?export=live"
 ENDPOINT_POWER_ON = "?power=on"
 ENDPOINT_POWER_OFF = "?power=off"
 ENDPOINT_BUTTON_POWER = "?button=power"
@@ -55,11 +53,6 @@ UPDATE_TARGET_INFOS = {
 _LOGGER = logging.getLogger(__name__)
 
 
-def repl_to_parse(m: re.Match):
-    # prepend a v s.t. no variable begins with an underscore
-    return f"{{v{m.group(1)}}}"
-
-
 def construct_url(ip_address: str) -> str:
     """Construct the URL with a given IP address."""
     if "http://" not in ip_address and "https://" not in ip_address:
@@ -72,102 +65,78 @@ class Bayernluefter:
     """Interface to communicate with the Bayernluefter."""
 
     def __init__(self, ip, session: aiohttp.ClientSession) -> None:
-        """Initialize the the printer."""
+        """Initialize the object."""
         self.url = construct_url(ip)
         self._session = session
-        self.data = {}  # type: Dict[str, Any]
-        self.data_converted = {}  # type: Dict[str, Any]
-        self.template = None
+        self._data = {}  # type: Dict[str, Any]
         self._latest_version = {}
         self._update_target: UpdateTarget | None = None
 
-    async def fetch_template(self):
-        """
-        Fetches the template for the export values from the Bayernluefter
-        """
-
-        bl_template = await self._request_bl(ENDPOINT_TEMPLATE)
-        self.template = re.sub(r"~(.+)~", repl_to_parse, bl_template)
-
     async def update(self) -> None:
-        if self.template is None:
-            await self.fetch_template()
+        # try to get JSON response
+        data = json.loads(await self._send_request(ENDPOINT_JSON))
 
-        state = await self._request_bl(ENDPOINT_EXPORT)
-        try:
-            parse_dict = parse.parse(self.template, state).named
-        except AttributeError:
-            # the template has been changed -> ignore this update
-            self.template = None
-            return
-
-        self.data = {key[1:]: value for key, value in parse_dict.items()}
-        self.data_converted = {
-            key: CONVERSION_DICT.get(key, str)(value)
-            for key, value in self.data.items()
-        }
+        # convert into native types
+        self._data = {key: convert(key, value) for key, value in data.items()}
 
         # estimate update target
         if self._update_target is None:
-            if self.data.get("FW_MainController", "").startswith("Rev2."):
+            if self._data.get("FW_MainController", "").startswith("Rev2."):
                 self._update_target = UpdateTarget.WLAN32
             else:
                 self._update_target = UpdateTarget.WLAN
 
-    async def _request_bl(self, target):
+    async def _send_request(self, target):
         url = f"{self.url}{target}"
         async with self._session.get(url) as response:
             if response.status != HTTPStatus.OK:
                 raise ValueError("Server does not support Bayernluefter protocol.")
             return await response.text(encoding="ascii", errors="ignore")
 
-    def raw(self) -> Dict:
+    @property
+    def data(self) -> Dict:
         """Return all details of the Bayernluefter."""
-        return self.data
-
-    def raw_converted(self) -> Dict:
-        """Return all details of the Bayernluefter, converted"""
-        return self.data_converted
+        return self._data
 
     async def power_on(self):
-        await self._request_bl(ENDPOINT_POWER_ON)
+        await self._send_request(ENDPOINT_POWER_ON)
 
     async def power_off(self):
-        await self._request_bl(ENDPOINT_POWER_OFF)
+        await self._send_request(ENDPOINT_POWER_OFF)
 
     async def power_toggle(self):
-        await self._request_bl(ENDPOINT_BUTTON_POWER)
+        await self._send_request(ENDPOINT_BUTTON_POWER)
 
     async def timer_toggle(self):
-        await self._request_bl(ENDPOINT_BUTTON_TIMER)
+        await self._send_request(ENDPOINT_BUTTON_TIMER)
 
     async def reset_speed(self):
-        await self._request_bl(ENDPOINT_SPEED.format(0))
+        await self._send_request(ENDPOINT_SPEED.format(0))
 
     async def set_speed(self, level: int):
         assert 1 <= level <= 10, "Level must be between 1 and 10"
-        await self._request_bl(ENDPOINT_SPEED.format(level))
+        await self._send_request(ENDPOINT_SPEED.format(level))
 
     async def set_speed_in(self, level: int):
         assert 0 <= level <= 10, "Level must be between 0 and 10"
-        await self._request_bl(ENDPOINT_SPEED_IN.format(level))
+        await self._send_request(ENDPOINT_SPEED_IN.format(level))
 
     async def set_speed_out(self, level: int):
         assert 0 <= level <= 10, "Level must be between 0 and 10"
-        await self._request_bl(ENDPOINT_SPEED_OUT.format(level))
+        await self._send_request(ENDPOINT_SPEED_OUT.format(level))
 
     async def set_speed_anti_freeze(self, level: int):
         assert 0 <= level <= 50, "Level must be between 0 and 50"
-        await self._request_bl(ENDPOINT_SPEED_ANTI_FREEZE.format(level))
+        await self._send_request(ENDPOINT_SPEED_ANTI_FREEZE.format(level))
 
     async def update_check(self):
-        await self._request_bl(ENDPOINT_UPDATE_CHECK)
+        await self._send_request(ENDPOINT_UPDATE_CHECK)
 
     async def poll_latest_versions(self):
         for target in UpdateTarget:
-            await self.poll_latest_version(target)
+            await self._poll_latest_version(target)
 
-    async def poll_latest_version(self, target: UpdateTarget):
+    async def _poll_latest_version(self, target: UpdateTarget):
         """Fetch latest version from Bayernluft server"""
         async with self._session.get(
             UPDATE_TARGET_INFOS[target].version_url
@@ -177,15 +146,18 @@ class Bayernluefter:
                 encoding="ascii", errors="ignore"
             )
 
+    @property
     def latest_wifi_version(self) -> str:
         return self._latest_version.get(self._update_target)
 
+    @property
     def installed_wifi_version(self) -> str:
         if self._update_target in (UpdateTarget.WLAN32, UpdateTarget.WLAN):
-            return self.data.get("FW_WiFi")
+            return self._data.get("FW_WiFi")
 
         return None
 
+    @property
     def wifi_release_url(self) -> str:
         info = UPDATE_TARGET_INFOS.get(self._update_target)
         if info is not None:

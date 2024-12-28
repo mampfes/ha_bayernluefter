@@ -46,22 +46,22 @@ class BayernluefterUpdate(BayernluefterEntity, UpdateEntity):
     ) -> None:
         """Initialize an update entity for a Bayernluefter device."""
         super().__init__(coordinator, self.entity_description)
-        self._attr_release_url = self._device.wifi_release_url()
+        self._attr_release_url = self._device.wifi_release_url
 
     @property
     def available(self) -> bool:
         return (
             self._coordinator.last_update_success
-            and self._device.installed_wifi_version() is not None
+            and self._device.installed_wifi_version is not None
         )
 
     @property
     def latest_version(self) -> str:
-        return self._device.latest_wifi_version()
+        return self._device.latest_wifi_version
 
     @property
     def installed_version(self) -> str:
-        return self._device.installed_wifi_version()
+        return self._device.installed_wifi_version
 
     async def async_install(
         self, version: str | None, backup: bool, **kwargs: Any

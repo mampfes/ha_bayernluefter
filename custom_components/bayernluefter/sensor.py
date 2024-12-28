@@ -4,6 +4,7 @@ Support for Bayernluefter sensors.
 
 import logging
 from typing import Final
+from enum import Enum
 
 from homeassistant.const import (
     EntityCategory,
@@ -34,7 +35,7 @@ CONCENTRATION_GRAMS_PER_CUBIC_METER: Final = "g/m³"
 TRANSPORT_GRAMS_PER_DAY: Final = "g/d"
 
 
-SENSOR_TYPES_CONVERTED: tuple[SensorEntityDescription, ...] = (
+SENSOR_ENTITIES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key="Temp_In",
         name="Temp_In",
@@ -119,8 +120,6 @@ SENSOR_TYPES_CONVERTED: tuple[SensorEntityDescription, ...] = (
         name="Speed_AntiFreeze",
         icon="mdi:fan",
     ),
-)
-SENSOR_TYPES_RAW: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key="MAC",
         name="MAC",
@@ -144,19 +143,10 @@ SENSOR_TYPES_RAW: tuple[SensorEntityDescription, ...] = (
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up sensor entries."""
     coordinator: DataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
-    entities = []
-    entities.extend(
-        [
-            BayernluefterSensorConverted(coordinator, description)
-            for description in SENSOR_TYPES_CONVERTED
-        ]
-    )
-    entities.extend(
-        [
-            BayernluefterSensorRaw(coordinator, description)
-            for description in SENSOR_TYPES_RAW
-        ]
-    )
+    entities = [
+        BayernluefterSensorEntity(coordinator, description)
+        for description in SENSOR_ENTITIES
+    ]
     async_add_entities(entities)
 
 
@@ -172,36 +162,8 @@ class BayernluefterSensorEntity(BayernluefterEntity, SensorEntity):
         super().__init__(coordinator, description)
         self.entity_description = description
 
-
-class BayernluefterSensorConverted(BayernluefterSensorEntity):
-    """A sensor implementation for Bayernluefter devices."""
-
-    def __init__(
-        self,
-        coordinator: DataUpdateCoordinator,
-        description: SensorEntityDescription,
-    ) -> None:
-        """Initialize a sensor entity for a Bayernluefter device."""
-        super().__init__(coordinator, description)
-
     @property
     def native_value(self) -> StateType:
         """Return the value reported by the sensor."""
-        return self._device.raw_converted()[self.entity_description.key]
-
-
-class BayernluefterSensorRaw(BayernluefterSensorEntity):
-    """A sensor implementation for Bayernluefter devices."""
-
-    def __init__(
-        self,
-        coordinator: DataUpdateCoordinator,
-        description: SensorEntityDescription,
-    ) -> None:
-        """Initialize a sensor entity for a Bayernluefter device."""
-        super().__init__(coordinator, description)
-
-    @property
-    def native_value(self) -> StateType:
-        """Return the value reported by the sensor."""
-        return self._device.raw()[self.entity_description.key]
+        value = self._device.data[self.entity_description.key]
+        return value.name if isinstance(value, Enum) else value
