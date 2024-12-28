@@ -55,7 +55,8 @@ OPTIONS_FLOW = {
 class ConfigFlow(ConfigFlow, domain=DOMAIN):
     """Component config flow."""
 
-    VERSION = 1
+    VERSION = 2
+    MINOR_VERSION = 0
 
     @staticmethod
     @callback

@@ -8,12 +8,13 @@ from typing import Any
 from aiohttp import ClientError
 from requests.exceptions import RequestException
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL, Platform
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceInfo, format_mac
 from homeassistant.helpers.entity import Entity, EntityDescription
+from homeassistant.helpers.entity_registry import RegistryEntry, async_migrate_entries
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -81,6 +82,43 @@ async def on_update_options_listener(hass: HomeAssistant, entry: ConfigEntry):
     """Handle options update."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     coordinator.update_interval = timedelta(seconds=entry.options[CONF_SCAN_INTERVAL])
+
+
+# Migrate entity unique-ids from version 1 to version 2
+ENTITY_ID_MAP = {
+    "_SystemOn": "SystemOn",
+    "_MaxMode": "TimerActiv",
+    "_Frozen": "SpeedFrozen",
+    "_QuerlueftungAktiv": "QuerlueftungAktiv",
+    "_VermieterMode": "VermieterMode",
+    "_AbtauMode": "AbtauMode",
+    "_FrostschutzAktiv": "FrostschutzAktiv",
+}
+
+
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old entry."""
+
+    if config_entry.version > 1:
+        # This means the user has downgraded from a future version
+        return False
+
+    if config_entry.version == 1:
+
+        @callback
+        def update_unique_id(
+            entity_entry: RegistryEntry,
+        ) -> dict[str, Any] | None:
+            """Update unique ID of entity entry."""
+            (mac, key) = entity_entry.unique_id.split("-", 1)
+            if key in ENTITY_ID_MAP:
+                return {"new_unique_id": "-".join([mac, ENTITY_ID_MAP[key]])}
+            return None
+
+        await async_migrate_entries(hass, config_entry.entry_id, update_unique_id)
+
+        hass.config_entries.async_update_entry(config_entry, version=2, minor_version=0)
+    return True
 
 
 class BayernluefterDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
