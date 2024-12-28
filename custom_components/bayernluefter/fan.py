@@ -51,7 +51,7 @@ class BayernluefterFan(BayernluefterEntity, FanEntity):
     """A fan implementation for Bayernluefter devices."""
 
     entity_description = FanEntityDescription(
-        key="_SystemOn",
+        key="SystemOn",
         name="Fan",
     )
 
@@ -73,27 +73,27 @@ class BayernluefterFan(BayernluefterEntity, FanEntity):
         """Initialize a fan entity for a Bayernluefter device."""
         super().__init__(coordinator, self.entity_description)
         self._attr_preset_modes = [FanMode.Timer]
-        if self._device.raw_converted()["SystemMode"] in SYSTEM_MODES_WITH_AUTO:
+        if self._device.data.get("SystemMode") in SYSTEM_MODES_WITH_AUTO:
             self._attr_preset_modes.append(FanMode.Auto)
 
     @property
     def is_on(self) -> bool:
         """Return the fan on status."""
-        return self._device.raw_converted()["_SystemOn"]
+        return self._device.data.get("SystemOn", False)
 
     @property
     def percentage(self) -> int:
         """Return the speed of the fan-"""
         return ranged_value_to_percentage(
-            FAN_SPEED_RANGE, self._device.raw_converted()["Speed_Out"]
+            FAN_SPEED_RANGE, self._device.data.get("Speed_Out", 0)
         )
 
     @property
     def preset_mode(self) -> str | None:
         """Return the current preset mode."""
-        if self._device.raw_converted()["_MaxMode"]:
+        if self._device.data["TimerActiv"]:
             pm = FanMode.Timer
-        elif self._device.raw_converted()["_Frozen"]:
+        elif self._device.data["SpeedFrozen"]:
             pm = None
         else:
             pm = FanMode.Auto
