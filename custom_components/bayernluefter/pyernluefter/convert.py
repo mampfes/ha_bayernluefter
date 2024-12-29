@@ -47,4 +47,7 @@ _CONVERSION_DICT = {
 
 
 def convert(key: str, value: str):
-    return _CONVERSION_DICT.get(key, str)(value)
+    try:
+        return _CONVERSION_DICT.get(key, str)(value)
+    except ValueError:
+        return None
