@@ -9,7 +9,8 @@ This component adds support for [Bayernlüfter](https://www.bayernluft.de) devic
 
 If you like this component, please give it a star on [github](https://github.com/mampfes/ha_bayernluefter).
 
-This integration requires at least revision firmware revision WS32234601 (which supports JSON export).
+This integration works out of the box with firmware revision equal or newer than WS32234601 (which supports JSON export).
+If you are using an older version you can still use this integration if you do an extra configuration step. Please check the [Notes](#notes) section.
 
 ## Installation
 
@@ -36,7 +37,14 @@ By factory default, the device name is equal to the MAC address of the device. T
 
 ## Notes
 
-Since firmware version WS32240427, the speed of the 3 fan motors can be controlled individually. But these controls will only work if the device is switched off!!! This is a limitation of the firmware of the device, not the integration.
+- Since firmware version WS32240427, the speed of the 3 fan motors can be controlled individually. But these controls will only work if the device is switched off!!! This is a limitation of the firmware of the device, not the integration. If you are using an older revision, the controls are not functional.
+
+- If you are using a firmware revision older than WS32234601, you have to upload a special template file:
+
+  1. Download the [template](./doc/export.txt).
+  2. Open the _Experten-Browser_ of your device: `http://<ip-address/browser.html`
+  3. Select the downloaded `export.txt` in the _Experten-Browser_ and click on _Hochladen_.
+  4. Reload the integration in Home Assistant or restart Home Assistant.
 
 ## Acknowledgements
 
