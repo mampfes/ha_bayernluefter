@@ -138,13 +138,16 @@ class Bayernluefter:
 
     async def _poll_latest_version(self, target: UpdateTarget):
         """Fetch latest version from Bayernluft server"""
-        async with self._session.get(
-            UPDATE_TARGET_INFOS[target].version_url
-        ) as response:
-            response.raise_for_status()
-            self._latest_version[target] = await response.text(
-                encoding="ascii", errors="ignore"
-            )
+        try:
+            async with self._session.get(
+                UPDATE_TARGET_INFOS[target].version_url
+            ) as response:
+                response.raise_for_status()
+                self._latest_version[target] = await response.text(
+                    encoding="ascii", errors="ignore"
+                )
+        except:
+            _LOGGER.error(f"Failed to fetch firmware info for {target}")
 
     @property
     def latest_wifi_version(self) -> str:
