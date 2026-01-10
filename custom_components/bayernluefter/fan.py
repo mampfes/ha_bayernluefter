@@ -84,16 +84,18 @@ class BayernluefterFan(BayernluefterEntity, FanEntity):
     @property
     def percentage(self) -> int:
         """Return the speed of the fan-"""
+        # Added "or 0" to handle NoneType return from get()
         return ranged_value_to_percentage(
-            FAN_SPEED_RANGE, self._device.data.get("Speed_Out", 0)
+            FAN_SPEED_RANGE, self._device.data.get("Speed_Out") or 0
         )
 
     @property
     def preset_mode(self) -> str | None:
         """Return the current preset mode."""
-        if self._device.data["TimerActiv"]:
+        # Changed direct dict access to .get() to prevent KeyError
+        if self._device.data.get("TimerActiv"):
             pm = FanMode.Timer
-        elif self._device.data["SpeedFrozen"]:
+        elif self._device.data.get("SpeedFrozen"):
             pm = None
         else:
             pm = FanMode.Auto
